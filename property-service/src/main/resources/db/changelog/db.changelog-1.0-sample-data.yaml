@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      author: Vadim Axelrod
+      id: sample-data
+      changes:
+        - loadData:
+            file: db/data/property.csv
+            tableName: property
+            separator: ;

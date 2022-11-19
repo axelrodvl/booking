@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      author: Vadim Axelrod
+      id: create-table-property
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: property
+      changes:
+        - createTable:
+            tableName: property
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: property_pkey
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(250)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: description
+                  type: VARCHAR(4000)
+              - column:
+                  name: location
+                  type: VARCHAR(1000)
+              - column:
+                  name: price
+                  type: INTEGER

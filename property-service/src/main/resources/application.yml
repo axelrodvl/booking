@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    kubernetes:
+      config:
+        name: property-service
+        namespace: default
+        sources:
+          - name: property-service
+  r2dbc:
+    url: r2dbc:postgresql://192.168.64.2:5432/booking
+    username: postgres
+    password: postgres
+  liquibase:
+    url: jdbc:postgresql://192.168.64.2:5432/booking
+    user: postgres
+    password: postgres
+    change-log: classpath:db/changelog/db.changelog-master.yml
