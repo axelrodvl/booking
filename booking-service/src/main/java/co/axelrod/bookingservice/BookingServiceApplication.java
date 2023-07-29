@@ -19,7 +19,6 @@ public class BookingServiceApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		stateMachine.sendEvent(Events.E1);
-		stateMachine.sendEvent(Events.E2);
+		stateMachine.sendEvent(Events.CANCEL_BY_CUSTOMER);
 	}
 }

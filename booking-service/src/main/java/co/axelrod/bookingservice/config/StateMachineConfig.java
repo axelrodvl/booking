@@ -34,7 +34,7 @@ public class StateMachineConfig
             throws Exception {
         states
                 .withStates()
-                .initial(States.SI)
+                .initial(States.CREATED)
                 .states(EnumSet.allOf(States.class));
     }
 
@@ -43,10 +43,13 @@ public class StateMachineConfig
             throws Exception {
         transitions
                 .withExternal()
-                .source(States.SI).target(States.S1).event(Events.E1)
+                .source(States.CREATED).target(States.CANCELED).event(Events.CANCEL_BY_CUSTOMER)
                 .and()
                 .withExternal()
-                .source(States.S1).target(States.S2).event(Events.E2);
+                .source(States.CREATED).target(States.CONFIRMED).event(Events.CONFIRM_BOOKING)
+                .and()
+                .withExternal()
+                .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST);
     }
 
     @Bean

@@ -1,5 +1,12 @@
 package co.axelrod.bookingservice.state;
 
 public enum States {
-    SI, S1, S2
+    CREATED,
+    CANCELED,
+    CONFIRMED,
+    DECLINED,
+    PAID,
+    PAYMENT_FAILURE,
+    STARTED,
+    COMPLETED
 }
