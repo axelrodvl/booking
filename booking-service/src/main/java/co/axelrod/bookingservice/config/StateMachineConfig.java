@@ -1,9 +1,11 @@
 package co.axelrod.bookingservice.config;
 
+import co.axelrod.bookingservice.persistence.InMemoryStateMachinePersist;
 import co.axelrod.bookingservice.state.Events;
 import co.axelrod.bookingservice.state.States;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.StateMachinePersist;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -12,6 +14,7 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 
 import java.util.EnumSet;
 
@@ -20,13 +23,26 @@ import java.util.EnumSet;
 public class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<States, Events> {
 
+    // Поле для хранения состояния стейт-машины в памяти
+    private DefaultStateMachineContext<States, Events> defaultStateMachineContext;
+
+    @Bean
+    public StateMachinePersist<States, Events, String> stateMachinePersist() {
+        return new InMemoryStateMachinePersist();
+    }
+
     @Override
     public void configure(StateMachineConfigurationConfigurer<States, Events> config)
             throws Exception {
         config
                 .withConfiguration()
                 .autoStartup(true)
+                .machineId("bookingStateMachine") // Устанавливаем идентификатор стейт-машины
                 .listener(listener());
+
+        // Создаем объект DefaultStateMachineContext с начальным состоянием CREATED
+        defaultStateMachineContext = new DefaultStateMachineContext<>(States.CREATED, null, null, null);
+
     }
 
     @Override
@@ -68,8 +84,6 @@ public class StateMachineConfig
                 .and()
                 .withExternal()
                 .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING);
-
-
     }
 
     @Bean
