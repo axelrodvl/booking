@@ -49,7 +49,27 @@ public class StateMachineConfig
                 .source(States.CREATED).target(States.CONFIRMED).event(Events.CONFIRM_BOOKING)
                 .and()
                 .withExternal()
-                .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST);
+                .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST)
+                .and()
+                .withExternal()
+                .source(States.CONFIRMED).target(States.PAID).event(Events.PAY_BY_CUSTOMER)
+                .and()
+                .withExternal()
+                .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAY_BY_CUSTOMER)
+                .and()
+                .withExternal()
+                .source(States.PAYMENT_FAILURE).target(States.CANCELED).event(Events.CANCEL_BY_PAYMENT_FAILURE)
+                .and()
+                .withExternal()
+                .source(States.PAYMENT_FAILURE).target(States.PAID).event(Events.PAY_BY_CUSTOMER_AFTER_FAILURE)
+                .and()
+                .withExternal()
+                .source(States.PAID).target(States.STARTED).event(Events.START_BOOKING)
+                .and()
+                .withExternal()
+                .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING);
+
+
     }
 
     @Bean
