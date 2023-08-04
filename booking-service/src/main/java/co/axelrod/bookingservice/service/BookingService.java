@@ -9,22 +9,28 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.stereotype.Component;
 
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 public class BookingService {
     private final StateMachineFactory<States, Events> stateMachineFactory;
+    private final Map<UUID, StateMachine<States, Events>> stateMachines = new ConcurrentHashMap<>();
 
     public UUID createBooking(Booking booking) {
         StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine();
         stateMachine.getExtendedState().getVariables().put("booking", booking);
-        stateMachine.startReactively();
-        return UUID.randomUUID();
+        stateMachine.start();
+        UUID instanceId = UUID.randomUUID();
+        stateMachines.put(instanceId, stateMachine);
+        return instanceId;
     }
 
-    public void confirmBooking(UUID instanceId) {
-        StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine();
+    public States confirmBooking(UUID instanceId) {
+        StateMachine<States, Events> stateMachine = stateMachines.get(instanceId);
         stateMachine.sendEvent(Events.CONFIRM_BOOKING);
+        return States.CONFIRMED;
     }
 }
