@@ -5,20 +5,26 @@ import co.axelrod.bookingservice.state.Events;
 import co.axelrod.bookingservice.state.States;
 import lombok.RequiredArgsConstructor;
 import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.stereotype.Component;
+
+
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class BookingService {
-    private final StateMachine<States, Events> stateMachine;
+    private final StateMachineFactory<States, Events> stateMachineFactory;
 
-    public States createBooking(Booking booking) {
-        stateMachine.sendEvent(Events.CANCEL_BY_CUSTOMER);
-        return States.CREATED; // TODO
+    public UUID createBooking(Booking booking) {
+        StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine();
+        stateMachine.getExtendedState().getVariables().put("booking", booking);
+        stateMachine.startReactively();
+        return UUID.randomUUID();
     }
 
-    public States confirmBooking(Booking booking) {
+    public void confirmBooking(UUID instanceId) {
+        StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine();
         stateMachine.sendEvent(Events.CONFIRM_BOOKING);
-        return States.CONFIRMED;
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController("/api/booking")
 @RequiredArgsConstructor
 public class BookingServiceController {
@@ -20,10 +22,10 @@ public class BookingServiceController {
     @PostMapping("/create")
     ResponseEntity<CreateBookingResponse> createBooking(CreateBookingRequest createBookingRequest) {
         Booking booking = mapper.map(createBookingRequest);
-        States state = service.createBooking(booking);
+        UUID bookingId = service.createBooking(booking);
         return ResponseEntity.ok(
                 CreateBookingResponse.builder()
-                        .status(state.toString())
+                        .bookingId(bookingId)
                         .build()
         );
     }
