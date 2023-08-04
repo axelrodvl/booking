@@ -23,7 +23,6 @@ import java.util.EnumSet;
 public class StateMachineConfig
         extends EnumStateMachineConfigurerAdapter<States, Events> {
 
-    // Поле для хранения состояния стейт-машины в памяти
     private DefaultStateMachineContext<States, Events> defaultStateMachineContext;
 
     @Bean
@@ -37,10 +36,9 @@ public class StateMachineConfig
         config
                 .withConfiguration()
                 .autoStartup(true)
-                .machineId("bookingStateMachine") // Устанавливаем идентификатор стейт-машины
+                .machineId("bookingStateMachine")
                 .listener(listener());
 
-        // Создаем объект DefaultStateMachineContext с начальным состоянием CREATED
         defaultStateMachineContext = new DefaultStateMachineContext<>(States.CREATED, null, null, null);
 
     }
