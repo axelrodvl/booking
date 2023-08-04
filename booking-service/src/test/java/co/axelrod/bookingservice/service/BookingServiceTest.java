@@ -2,6 +2,7 @@ package co.axelrod.bookingservice.service;
 
 import co.axelrod.bookingservice.service.model.Booking;
 import co.axelrod.bookingservice.state.States;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,5 +51,43 @@ class BookingServiceTest {
 
         bookingService.confirmBooking(stateMachineUUID);
         assertEquals(States.CONFIRMED, stateMachine.getState().getId());
+    }
+
+    @Test
+    @DisplayName("""
+            Happy path:
+            - Guest creates booking
+            - Host confirms
+            - Payment is successful in first attempt
+            - Guest started booking
+            - Guest finished booking
+            """)
+    void happyPath() {
+
+    }
+
+    @Test
+    @DisplayName("""
+            Happy path with payment issues - :
+            - Guest creates booking
+            - Host confirms
+            - Payment is successful in third attempt
+            - Guest started booking
+            - Guest finished booking
+            """)
+    void happyPathWithPaymentIssues() {
+
+    }
+
+    @Test
+    @DisplayName("""
+            Booking canceled - :
+            - Guest creates booking
+            - Host confirms
+            - Payment is failed
+            - Booking canceled
+            """)
+    void paymentIssuesBookingDeclined() {
+
     }
 }
