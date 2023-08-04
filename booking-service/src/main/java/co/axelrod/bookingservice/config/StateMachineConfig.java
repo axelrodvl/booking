@@ -3,10 +3,13 @@ package co.axelrod.bookingservice.config;
 import co.axelrod.bookingservice.persistence.InMemoryStateMachinePersist;
 import co.axelrod.bookingservice.state.Events;
 import co.axelrod.bookingservice.state.States;
+import co.axelrod.bookingservice.transition.ConfirmBookingAction;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.StateMachinePersist;
-import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -19,11 +22,10 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import java.util.EnumSet;
 
 @Configuration
-@EnableStateMachine
-public class StateMachineConfig
-        extends EnumStateMachineConfigurerAdapter<States, Events> {
-
-    private DefaultStateMachineContext<States, Events> defaultStateMachineContext;
+@EnableStateMachineFactory
+@RequiredArgsConstructor
+public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
+    private final ConfirmBookingAction confirmBookingAction;
 
     @Bean
     public StateMachinePersist<States, Events, String> stateMachinePersist() {
@@ -38,9 +40,6 @@ public class StateMachineConfig
                 .autoStartup(true)
                 .machineId("bookingStateMachine")
                 .listener(listener());
-
-        defaultStateMachineContext = new DefaultStateMachineContext<>(States.CREATED, null, null, null);
-
     }
 
     @Override
@@ -59,27 +58,36 @@ public class StateMachineConfig
                 .withExternal()
                 .source(States.CREATED).target(States.CANCELED).event(Events.CANCEL_BY_CUSTOMER)
                 .and()
+
                 .withExternal()
                 .source(States.CREATED).target(States.CONFIRMED).event(Events.CONFIRM_BOOKING)
+                .action(confirmBookingAction)
                 .and()
+
                 .withExternal()
                 .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST)
                 .and()
+
                 .withExternal()
                 .source(States.CONFIRMED).target(States.PAID).event(Events.PAY_BY_CUSTOMER)
                 .and()
+
                 .withExternal()
                 .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAY_BY_CUSTOMER)
                 .and()
+
                 .withExternal()
                 .source(States.PAYMENT_FAILURE).target(States.CANCELED).event(Events.CANCEL_BY_PAYMENT_FAILURE)
                 .and()
+
                 .withExternal()
                 .source(States.PAYMENT_FAILURE).target(States.PAID).event(Events.PAY_BY_CUSTOMER_AFTER_FAILURE)
                 .and()
+
                 .withExternal()
                 .source(States.PAID).target(States.STARTED).event(Events.START_BOOKING)
                 .and()
+
                 .withExternal()
                 .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING);
     }
