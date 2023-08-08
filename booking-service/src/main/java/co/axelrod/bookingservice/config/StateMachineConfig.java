@@ -90,7 +90,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
                 .and()
 
                 .withExternal()
-                .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAY_BY_CUSTOMER)
+                .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAYMENT_IS_FAILURE)
                 .action(paymentFailureAction)
                 .and()
 
@@ -110,7 +110,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
                 .and()
 
                 .withExternal()
-                .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING)
+                .source(States.STARTED).target(States.COMPLETED).event(Events.COMPLETE_BOOKING)
                 .action(completeBookingAction);
     }
 
