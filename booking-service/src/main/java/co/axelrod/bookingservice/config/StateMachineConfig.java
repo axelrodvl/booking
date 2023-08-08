@@ -3,7 +3,7 @@ package co.axelrod.bookingservice.config;
 import co.axelrod.bookingservice.persistence.InMemoryStateMachinePersist;
 import co.axelrod.bookingservice.state.Events;
 import co.axelrod.bookingservice.state.States;
-import co.axelrod.bookingservice.transition.ConfirmBookingAction;
+import co.axelrod.bookingservice.transition.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +25,21 @@ import java.util.EnumSet;
 @EnableStateMachineFactory
 @RequiredArgsConstructor
 public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
+    private final CancelByCustomerAction cancelByCustomerAction;
     private final ConfirmBookingAction confirmBookingAction;
+    private final DeclineByHostAction declineByHostAction;
+    private final PayByCustomerAction payByCustomerAction;
+    private final PaymentFailureAction paymentFailureAction;
+    private final CancelByPaymentFailureAction cancelByPaymentFailureAction;
+
+    private final PayByCustomerAfterFailureAction payByCustomerAfterFailureAction;
+    private final StartBookingAction startBookingAction;
+    private final CompleteBookingAction completeBookingAction;
+
+
+
+
+
 
     @Bean
     public StateMachinePersist<States, Events, String> stateMachinePersist() {
@@ -57,6 +71,7 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
         transitions
                 .withExternal()
                 .source(States.CREATED).target(States.CANCELED).event(Events.CANCEL_BY_CUSTOMER)
+                .action(cancelByCustomerAction)
                 .and()
 
                 .withExternal()
@@ -66,30 +81,37 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States
 
                 .withExternal()
                 .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST)
+                .action(declineByHostAction)
                 .and()
 
                 .withExternal()
                 .source(States.CONFIRMED).target(States.PAID).event(Events.PAY_BY_CUSTOMER)
+                .action(payByCustomerAction)
                 .and()
 
                 .withExternal()
                 .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAY_BY_CUSTOMER)
+                .action(paymentFailureAction)
                 .and()
 
                 .withExternal()
                 .source(States.PAYMENT_FAILURE).target(States.CANCELED).event(Events.CANCEL_BY_PAYMENT_FAILURE)
+                .action(cancelByPaymentFailureAction)
                 .and()
 
                 .withExternal()
                 .source(States.PAYMENT_FAILURE).target(States.PAID).event(Events.PAY_BY_CUSTOMER_AFTER_FAILURE)
+                .action(payByCustomerAfterFailureAction)
                 .and()
 
                 .withExternal()
                 .source(States.PAID).target(States.STARTED).event(Events.START_BOOKING)
+                .action(startBookingAction)
                 .and()
 
                 .withExternal()
-                .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING);
+                .source(States.PAID).target(States.COMPLETED).event(Events.COMPLETE_BOOKING)
+                .action(completeBookingAction);
     }
 
     @Bean
