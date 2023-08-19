@@ -1,10 +1,15 @@
 package co.axelrod.bookingservice.config;
 
+import co.axelrod.bookingservice.persistence.InMemoryStateMachinePersist;
 import co.axelrod.bookingservice.state.Events;
 import co.axelrod.bookingservice.state.States;
+import co.axelrod.bookingservice.transition.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.StateMachinePersist;
+import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -12,13 +17,34 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
+import org.springframework.statemachine.support.DefaultStateMachineContext;
 
 import java.util.EnumSet;
 
 @Configuration
-@EnableStateMachine
-public class StateMachineConfig
-        extends EnumStateMachineConfigurerAdapter<States, Events> {
+@EnableStateMachineFactory
+@RequiredArgsConstructor
+public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
+    private final CancelByCustomerAction cancelByCustomerAction;
+    private final ConfirmBookingAction confirmBookingAction;
+    private final DeclineByHostAction declineByHostAction;
+    private final PayByCustomerAction payByCustomerAction;
+    private final PaymentFailureAction paymentFailureAction;
+    private final CancelByPaymentFailureAction cancelByPaymentFailureAction;
+
+    private final PayByCustomerAfterFailureAction payByCustomerAfterFailureAction;
+    private final StartBookingAction startBookingAction;
+    private final CompleteBookingAction completeBookingAction;
+
+
+
+
+
+
+    @Bean
+    public StateMachinePersist<States, Events, String> stateMachinePersist() {
+        return new InMemoryStateMachinePersist();
+    }
 
     @Override
     public void configure(StateMachineConfigurationConfigurer<States, Events> config)
@@ -26,6 +52,7 @@ public class StateMachineConfig
         config
                 .withConfiguration()
                 .autoStartup(true)
+                .machineId("bookingStateMachine")
                 .listener(listener());
     }
 
@@ -44,12 +71,47 @@ public class StateMachineConfig
         transitions
                 .withExternal()
                 .source(States.CREATED).target(States.CANCELED).event(Events.CANCEL_BY_CUSTOMER)
+                .action(cancelByCustomerAction)
                 .and()
+
                 .withExternal()
                 .source(States.CREATED).target(States.CONFIRMED).event(Events.CONFIRM_BOOKING)
+                .action(confirmBookingAction)
                 .and()
+
                 .withExternal()
-                .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST);
+                .source(States.CREATED).target(States.DECLINED).event(Events.DECLINE_BY_HOST)
+                .action(declineByHostAction)
+                .and()
+
+                .withExternal()
+                .source(States.CONFIRMED).target(States.PAID).event(Events.PAY_BY_CUSTOMER)
+                .action(payByCustomerAction)
+                .and()
+
+                .withExternal()
+                .source(States.CONFIRMED).target(States.PAYMENT_FAILURE).event(Events.PAYMENT_IS_FAILURE)
+                .action(paymentFailureAction)
+                .and()
+
+                .withExternal()
+                .source(States.PAYMENT_FAILURE).target(States.CANCELED).event(Events.CANCEL_BY_PAYMENT_FAILURE)
+                .action(cancelByPaymentFailureAction)
+                .and()
+
+                .withExternal()
+                .source(States.PAYMENT_FAILURE).target(States.PAID).event(Events.PAY_BY_CUSTOMER_AFTER_FAILURE)
+                .action(payByCustomerAfterFailureAction)
+                .and()
+
+                .withExternal()
+                .source(States.PAID).target(States.STARTED).event(Events.START_BOOKING)
+                .action(startBookingAction)
+                .and()
+
+                .withExternal()
+                .source(States.STARTED).target(States.COMPLETED).event(Events.COMPLETE_BOOKING)
+                .action(completeBookingAction);
     }
 
     @Bean

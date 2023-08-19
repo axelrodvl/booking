@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: property-service-svc
+spec:
+  selector:
+    app: property-service
+  ports:
+    - protocol: "TCP"
+      port: 9080
+      targetPort: 8080
+  type: NodePort
