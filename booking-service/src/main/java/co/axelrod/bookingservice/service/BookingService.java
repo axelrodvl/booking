@@ -21,4 +21,8 @@ public class BookingService {
         stateMachine.sendEvent(Events.CONFIRM_BOOKING);
         return States.CONFIRMED;
     }
+
+    public boolean isValidBookingDates(Booking booking) {
+        return booking.getTimestampFrom() < booking.getTimestampTo();
+    }
 }
