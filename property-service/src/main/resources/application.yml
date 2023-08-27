@@ -7,11 +7,11 @@ spring:
         sources:
           - name: property-service
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/booking
+    url: r2dbc:postgresql://postgresql.default.svc.cluster.local:5432/booking
     username: postgres
     password: postgres
   liquibase:
-    url: jdbc:postgresql://localhost:5432/booking
+    url: jdbc:postgresql://postgresql.default.svc.cluster.local:5432/booking
     user: postgres
     password: postgres
     change-log: classpath:db/changelog/db.changelog-master.yml
